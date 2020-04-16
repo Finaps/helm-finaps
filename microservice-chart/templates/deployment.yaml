@@ -1,0 +1,86 @@
+{{- $envInjectionEnabled := .Values.azureKeyVaultToKubernetes.envInjectorEnabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "microservice-chart.fullname" . }}
+  labels:
+    app: {{ template "microservice-chart.fullname" . }}
+    chart: {{ template "microservice-chart.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "microservice-chart.fullname" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "microservice-chart.fullname" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        buildID: {{ .Release.Revision | toString | quote }}
+    spec:
+      containers:
+        - name: {{ template "microservice-chart.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          {{- if .Values.probes.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-configmap
+          env:
+            {{- $root := . }}
+            {{- range $ref, $values := .Values.secrets }}
+            {{- range $key, $value := $values }}
+            - name: {{ $ref }}_{{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "microservice-chart.fullname" $root }}-{{ $ref | lower }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- end }}
+            {{- range $envVariable := .Values.azureKeyVaultToKubernetes.envVariables }}
+            - name : {{ $envVariable.envName }}
+            {{- if $root.Values.azureKeyVaultToKubernetes.envInjectorEnabled }}
+              value : {{ $envVariable.azureKeyVaultSecret }}@azurekeyvault{{ if $envVariable.query }}?{{ $envVariable.query }}{{ end }}
+            {{- else}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $envVariable.secretName }}
+                  key: {{ $envVariable.query }}
+            {{- end }}
+            {{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    

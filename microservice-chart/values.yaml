@@ -1,0 +1,37 @@
+replicaCount: 1
+
+fullnameOverride: APPLICATION
+image:
+  repository: REPOSITORY
+  tag: stable
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+service:
+  type: ClusterIP
+  port: 80
+
+probes:
+  enabled: false
+
+ingress:
+  enabled: false
+  annotations: []
+  path: /
+  tls: []
+
+azureKeyVaultToKubernetes:
+  envInjectorEnabled: false
+  envVariables: []
+
+configmap: {}
+
+secrets: {}
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
