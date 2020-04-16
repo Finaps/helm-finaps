@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "debtco-chart.fullname" . }}
+  name: {{ template "microservice-chart.fullname" . }}
   labels:
-    app: {{ template "debtco-chart.fullname" . }}
-    chart: {{ template "debtco-chart.chart" . }}
+    app: {{ template "microservice-chart.fullname" . }}
+    chart: {{ template "microservice-chart.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
@@ -15,5 +15,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: {{ template "debtco-chart.fullname" . }}
+    app: {{ template "microservice-chart.fullname" . }}
     release: {{ .Release.Name }}

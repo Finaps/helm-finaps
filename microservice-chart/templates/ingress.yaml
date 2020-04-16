@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "debtco-chart.fullname" . -}}
+{{- $fullName := include "microservice-chart.fullname" . -}}
 {{- $servicePort := .Values.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
 apiVersion: extensions/v1beta1
@@ -7,8 +7,8 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    app: {{ template "debtco-chart.name" . }}
-    chart: {{ template "debtco-chart.chart" . }}
+    app: {{ template "microservice-chart.name" . }}
+    chart: {{ template "microservice-chart.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 {{- with .Values.ingress.annotations }}

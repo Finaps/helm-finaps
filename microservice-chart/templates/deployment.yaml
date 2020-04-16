@@ -2,28 +2,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "debtco-chart.fullname" . }}
+  name: {{ include "microservice-chart.fullname" . }}
   labels:
-    app: {{ template "debtco-chart.fullname" . }}
-    chart: {{ template "debtco-chart.chart" . }}
+    app: {{ template "microservice-chart.fullname" . }}
+    chart: {{ template "microservice-chart.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "debtco-chart.fullname" . }}
+      app: {{ template "microservice-chart.fullname" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ template "debtco-chart.fullname" . }}
+        app: {{ template "microservice-chart.fullname" . }}
         release: {{ .Release.Name }}
       annotations:
         buildID: {{ .Release.Revision | toString | quote }}
     spec:
       containers:
-        - name: {{ template "debtco-chart.fullname" . }}
+        - name: {{ template "microservice-chart.fullname" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -50,7 +50,7 @@ spec:
             - name: {{ $ref }}_{{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "debtco-chart.fullname" $root }}-{{ $ref | lower }}
+                  name: {{ template "microservice-chart.fullname" $root }}-{{ $ref | lower }}
                   key: {{ $key }}
             {{- end }}
             {{- end }}
